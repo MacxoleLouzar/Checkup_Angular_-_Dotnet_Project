@@ -6,6 +6,9 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="mb-3">
         <input class="form-control bg-body-secondary" placeholder="First Name" formControlName="firstName">
+        <div class="error-feedback" *ngIf="hasDisplayableError('firstName') && form.controls['firstName'].hasError('required')">
+            Please enter your name.
+        </div>
     </div>
 <div class="mb-3">
         <input class="form-control bg-body-secondary" placeholder="Last Name" formControlName="lastName">
