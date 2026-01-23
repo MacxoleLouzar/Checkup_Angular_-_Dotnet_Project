@@ -1,0 +1,6 @@
+@CheckupServer_HostAddress = http://localhost:5119
+
+GET {{CheckupServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
