@@ -19,7 +19,7 @@ passwordMatchValidators(form: FormGroup) {
   constructor(public formBuilder: FormBuilder) {
     this.form = this.formBuilder.group({
       firstName: ['', Validators.required],
-      lastName: [''],
+      lastName: ['',Validators.required],
       email: ['',[Validators.required, Validators.email]],
       password: ['',[Validators.required, Validators.minLength(6),Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)]],
       confirmPassword: [''],
