@@ -1,19 +1,28 @@
 import { Component } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, FormGroup, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FirstkeyPipe } from '../../shared/pipes/firstkey.pipe';
 
 @Component({
   selector: 'app-registration',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, FirstkeyPipe],
   templateUrl: './registration.component.html',
   styles: ''
 })
 export class RegistrationComponent {
   form: FormGroup;
   isSubmitting:boolean = false
-passwordMatchValidators(form: FormGroup) {
-    return form.get('password')?.value === form.get('confirmPassword')?.value ? null : { mismatch: true };
+passwordMatchValidators: ValidatorFn = (control: AbstractControl): null => {
+    const password = control.get('password');
+    const confirmPassword = control.get('confirmPassword');
+
+    if(password && confirmPassword && password.value !== confirmPassword.value) 
+      confirmPassword.setErrors({passwordMismatch:true})
+      else
+        confirmPassword?.setErrors(null)
+
+      return null;
   }
 
   constructor(public formBuilder: FormBuilder) {

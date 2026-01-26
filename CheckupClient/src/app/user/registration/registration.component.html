@@ -28,19 +28,26 @@
     <div class="mb-3">
         <input class="form-control bg-body-secondary" placeholder="Password" formControlName="password">
         <div class="error-feedback" *ngIf="hasDisplayableError('password')">
-            <div class="error-feedback" *ngIf="form.controls['password'].hasError('required')">
-                Please enter your password.
-            </div>
-            <div class="error-feedback" *ngIf="form.controls['password'].hasError('minlength')">
-                Lenght must be atleast 6 characters
-            </div>
-             <div class="error-feedback" *ngIf="form.controls['password'].hasError('pattern')">
-                Must have one character()
-            </div>
+            <ng-container [ngSwitch]="form.controls['password'].errors | firstkey">
+                <div class="error-feedback" *ngSwitchCase="'required'">
+                    Please enter your password.
+                </div>
+                <div class="error-feedback" *ngSwitchCase="'minlength'">
+                    Lenght must be atleast 6 characters
+                </div>
+                <div class="error-feedback" *ngSwitchCase="'pattern'">
+                    Must have one character()
+                </div>
+            </ng-container>
+
         </div>
     </div>
     <div class="mb-3">
         <input class="form-control bg-body-secondary" placeholder="Confirm Password" formControlName="confirmPassword">
+        <div class="error-feedback"
+            *ngIf="hasDisplayableError('confirmPassword') && form.controls['confirmPassword'].hasError('passwordMismatch')">
+            Password doesn't match
+        </div>
     </div>
 
     <div class="mt-4">
