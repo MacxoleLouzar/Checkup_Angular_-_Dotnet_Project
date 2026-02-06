@@ -3,7 +3,8 @@ import { FormBuilder, ReactiveFormsModule, FormGroup, Validators, ValidatorFn, A
 import { CommonModule } from '@angular/common';
 import { FirstkeyPipe } from '../../shared/pipes/firstkey.pipe';
 import { AuthService } from '../../shared/services/auth.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { finalize } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-registration',
@@ -12,10 +13,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './registration.component.html',
   styles: ''
 })
+
 export class RegistrationComponent {
   form: FormGroup;
   isSubmitting: boolean = false
-  private snackBar = inject(MatSnackBar);
+  private toastr = inject(ToastrService);
+
   passwordMatchValidators: ValidatorFn = (control: AbstractControl): null => {
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
@@ -24,7 +27,6 @@ export class RegistrationComponent {
       confirmPassword.setErrors({ passwordMismatch: true })
     else
       confirmPassword?.setErrors(null)
-
     return null;
   }
 
@@ -37,39 +39,25 @@ export class RegistrationComponent {
       confirmPassword: [''],
     }, { validators: this.passwordMatchValidators });
   }
+
   onSubmit() {
-    this.isSubmitting = true
-    if(this.form.valid){
-      const formData = {
-        firstname: this.form.value.firstName,
-        lastname: this.form.value.lastName,
-        email: this.form.value.email,
-        password: this.form.value.password
-      };
-      console.log('Sending data:', formData);
-      this.service.CreateUser(formData)
+    if (this.form.invalid) return;
+
+    this.isSubmitting = true;
+    const { firstName: firstname, lastName: lastname, email, password } = this.form.value;
+
+    this.service.CreateUser({ firstname, lastname, email, password })
+      .pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
-        next:(res:any) => {
-          console.log('Success response:', res);
-          this.form.reset()
-          this.isSubmitting = false
-          this.snackBar.open('User created successfully!', 'Close', { duration: 3000 });
+        next: () => {
+          this.form.reset();
+          this.toastr.success('User created successfully!', 'Success');
         },
-        error:(err: any) => {
-          console.log('Error response:', err);
-          console.log('Error details:', err.error);
-          console.log('Validation errors:', err.error.errors);
-          this.isSubmitting = false;
-          
-          let errorMessage = 'Registration failed. ';
-          if (err.error.errors && err.error.errors.length > 0) {
-            errorMessage += err.error.errors.join(', ');
-          }
-          
-          this.snackBar.open(errorMessage, 'Close', { duration: 5000 });
+        error: (err) => {
+          const msgs = err.error?.errors?.join(', ') || 'Registration failed.';
+          this.toastr.error(msgs, 'Error');
         }
-      })
-    }
+      });
   }
 
   hasDisplayableError(controlName: string): Boolean {
