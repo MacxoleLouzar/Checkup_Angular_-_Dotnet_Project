@@ -54,7 +54,7 @@ export class RegistrationComponent {
           this.toastr.success('User created successfully!', 'Success');
         },
         error: (err) => {
-          const msgs = err.error?.errors?.join(', ') || 'Registration failed.';
+          const msgs = err.error.errors.join(', ') || 'Registration failed.';
           this.toastr.error(msgs, 'Error');
         }
       });
@@ -62,6 +62,7 @@ export class RegistrationComponent {
 
   hasDisplayableError(controlName: string): Boolean {
     const control = this.form.get(controlName)
-    return Boolean(control?.invalid) && (this.isSubmitting || Boolean(control?.touched))
+    return Boolean(control?.invalid) && 
+    (Boolean(control?.dirty) ||(this.isSubmitting || Boolean(control?.touched)))
   }
 }
